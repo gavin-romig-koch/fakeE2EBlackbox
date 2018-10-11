@@ -24,7 +24,7 @@ def process_request():
     if totalupseconds < (1.5 * 60):
         downaverage = 0.07
     elif totalupseconds < (3.5 * 60):
-        downaverage = 1.1
+        downaverage = 0.07
     else:
         downaverage = 0.06
     print("downaverage ",downaverage)

@@ -21,10 +21,10 @@ def process_request():
     totalupseconds = (datetime.datetime.now()-starttime).total_seconds()
     print("total up seconds ",totalupseconds)
 
-    if totalupseconds < 90:
+    if totalupseconds < (1.5 * 60):
         downaverage = 0.07
-    elif totalupseconds < 180:
-        downaverage = 0.13
+    elif totalupseconds < (3.5 * 60):
+        downaverage = 1.1
     else:
         downaverage = 0.06
     print("downaverage ",downaverage)

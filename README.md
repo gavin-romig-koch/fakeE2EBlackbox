@@ -48,7 +48,7 @@ work separate from any other works.
     MYPROJECT=$(oc whoami)-fake-e2e-project
     oc new-project $MYPROJECT
 
-oc status' is your friend, use it early and often.
+'oc status' is your friend, use it early and often.
 
 cd to the top level of your checked out copy of this repo.  This README should be in that directory.
 
@@ -64,7 +64,7 @@ Browse to any or all of them to see what's going on in each of these.
 'oc get all,cm' will show all the resources created by these 'scripts'.
 
 'oc get -o yaml <resorcetype/resourcename>' will get a detailed yaml report on the current state of
-any resource.  So 'oc get -o yaml dc/fake-e2e-blackbox' gets a detailed yaml report of the
+any resource.  So 'oc get -o yaml bc/fake-e2e-blackbox' gets a detailed yaml report of the
 fake-e2e-blackbox deployment config.
 
 'oc describe <resorcetype/resourcename>' will give human readable description of resource.
@@ -86,7 +86,7 @@ There is probably a more elegant way to do this, but I like the certanty of rebo
 To change the fake-e2e-blackbox app, edit the python script in your checked out copy of this repo,
 then from the top level (where this README is):
 
-    oc start-build bc/fake-e2e-blackbox --from-dir=./fakeE2EBlackbox/
+    oc start-build bc/fake-e2e-blackbox --from-dir=./fake-e2e-blackbox
 
 This will build a new version of the app, with your changes, and deploy it.  Prometheus will show
 a short gap of results while the pod is replaced, and then show result of your changes.

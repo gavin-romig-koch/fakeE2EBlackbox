@@ -1,0 +1,112 @@
+piVersion: v1
+items:
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      run: alertmanager
+      app: fake-e2e-blackbox
+    name: alertmanager
+  spec:
+    replicas: 1
+    selector:
+      run: alertmanager
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          run: alertmanager
+          app: fake-e2e-blackbox
+      spec:
+        containers:
+        - image: prom/alertmanager
+          imagePullPolicy: Always
+          name: alertmanager
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/alertmanager
+            name: alertmanager-config-volume
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: alertmanager-config
+          name: alertmanager-config-volume
+    test: false
+    triggers:
+    - type: ConfigChange
+- apiVersion: v1
+  kind: Route
+  metadata:
+    labels:
+      run: alertmanager
+      app: fake-e2e-blackbox
+    name: alertmanager
+  spec:
+    port:
+      targetPort: 9093
+    to:
+      kind: Service
+      name: alertmanager
+      weight: 100
+    wildcardPolicy: None
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      run: alertmanager
+      app: fake-e2e-blackbox
+    name: alertmanager
+  spec:
+    ports:
+    - port: 9093
+      protocol: TCP
+      targetPort: 9093
+    selector:
+      run: alertmanager
+    sessionAffinity: None
+    type: ClusterIP
+- apiVersion: v1
+  data:
+    alertmanager.yml: |
+      global:
+        resolve_timeout: 5m
+
+      route:
+        group_by: ['alertname']
+        group_wait: 10s
+        group_interval: 10s
+        repeat_interval: 60s
+        receiver: 'web.hook'
+      receivers:
+      - name: 'web.hook'
+        webhook_configs:
+        - url: 'http://127.0.0.1:5001/'
+      inhibit_rules:
+        - source_match:
+            severity: 'critical'
+          target_match:
+            severity: 'warning'
+          equal: ['alertname', 'dev', 'instance']
+  kind: ConfigMap
+  metadata:
+    name: alertmanager-config
+    labels:
+      app: fake-e2e-blackbox
+kind: List
+metadata: {}

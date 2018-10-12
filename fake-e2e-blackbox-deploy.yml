@@ -1,0 +1,118 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      app: fake-e2e-blackbox
+    name: fake-e2e-blackbox
+  spec:
+    lookupPolicy:
+      local: false
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      app: fake-e2e-blackbox
+    name: fake-e2e-blackbox
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: fake-e2e-blackbox:latest
+    postCommit: {}
+    resources: {}
+    source:
+      git:
+        uri: https://github.com/gavin-romig-koch/fakeE2EBlackbox
+      contextDir: "fake-e2e-blackbox"
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: python:3.6
+          namespace: openshift
+      type: Source
+    triggers:
+    - github:
+        secret: 0m3mf1TVNgfvQXILa9Fg
+      type: GitHub
+    - generic:
+        secret: Mlu0keHMZiVhwTI7_AN3
+      type: Generic
+    - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: fake-e2e-blackbox
+    name: fake-e2e-blackbox
+  spec:
+    replicas: 1
+    selector:
+      app: fake-e2e-blackbox
+      deploymentconfig: fake-e2e-blackbox
+    strategy:
+      resources: {}
+    template:
+      metadata:
+        labels:
+          app: fake-e2e-blackbox
+          deploymentconfig: fake-e2e-blackbox
+      spec:
+        containers:
+        - env:
+          - name: APP_FILE
+            value: fakeE2EBlackbox.py
+          image: fake-e2e-blackbox:latest
+          name: fake-e2e-blackbox
+          ports:
+          - containerPort: 8000
+            protocol: TCP
+          resources: {}
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - fake-e2e-blackbox
+        from:
+          kind: ImageStreamTag
+          name: fake-e2e-blackbox:latest
+      type: ImageChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: fake-e2e-blackbox
+    name: fake-e2e-blackbox
+  spec:
+    ports:
+    - name: 8000-tcp
+      port: 8000
+      protocol: TCP
+      targetPort: 8000
+    selector:
+      app: fake-e2e-blackbox
+      deploymentconfig: fake-e2e-blackbox
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    labels:
+      app: fake-e2e-blackbox
+    name: fake-e2e-blackbox
+  spec:
+    port:
+      targetPort: 8000-tcp
+    to:
+      kind: Service
+      name: fake-e2e-blackbox
+      weight: 100
+    wildcardPolicy: None
+kind: List
+metadata: {}

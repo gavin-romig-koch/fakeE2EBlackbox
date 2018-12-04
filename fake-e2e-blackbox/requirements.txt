@@ -1,1 +1,1 @@
-prometheus-client==0.4.0
+prometheus-client

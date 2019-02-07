@@ -86,7 +86,7 @@ There is probably a more elegant way to do this, but I like the certanty of rebo
 To change the fake-e2e-blackbox app, edit the python script in your checked out copy of this repo,
 then from the top level (where this README is):
 
-    oc start-build bc/fake-e2e-blackbox --from-dir=./fake-e2e-blackbox
+    oc start-build bc/fake-e2e-blackbox --from-dir=. --follow
 
 This will build a new version of the app, with your changes, and deploy it.  Prometheus will show
 a short gap of results while the pod is replaced, and then show result of your changes.
